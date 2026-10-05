@@ -96,6 +96,7 @@ def answer_question(
 
     citations: list[Citation] = []
     citation_by_chunk: dict[str, Citation] = {}
+    hit_by_chunk_id = {hit.chunk.chunk_id: hit for hit in chosen_hits}
     candidates: list[tuple[float, str, str]] = []  # (score, chunk_id, sentence)
 
     for hit in chosen_hits:
@@ -126,7 +127,7 @@ def answer_question(
 
     for chunk_id, _ in picked:
         if chunk_id not in citation_by_chunk:
-            hit = next(h for h in chosen_hits if h.chunk.chunk_id == chunk_id)
+            hit = hit_by_chunk_id[chunk_id]
             citation_by_chunk[chunk_id] = Citation(
                 number=len(citation_by_chunk) + 1,
                 doc_name=hit.chunk.doc_name,

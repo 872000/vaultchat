@@ -55,3 +55,17 @@ def test_render_lists_sources():
     assert rendered.startswith(ans.text.strip())
     assert "Sources:" in rendered
     assert "[1] git.md (chunk 2)" in rendered
+
+
+def test_answer_citation_numbers_follow_best_sentences_order():
+    hits = [
+        _hit("a.md", 0, "Emergency funds cover three to six months of expenses.", score=0.9),
+        _hit("b.md", 1, "Automate transfers to savings on payday.", score=0.8),
+        _hit("c.md", 2, "Track subscriptions monthly to cut waste.", score=0.7),
+    ]
+    ans = answer_question(
+        "emergency funds savings subscriptions", hits, max_sentences=3
+    )
+    assert ans.citations[0].doc_name == "a.md"
+    assert ans.citations[1].doc_name == "b.md"
+    assert ans.citations[2].doc_name == "c.md"
