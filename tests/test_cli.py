@@ -27,6 +27,13 @@ def test_ask_irrelevant_question_graceful(capsys):
     assert "couldn't find" in out.lower()
 
 
+def test_ask_nonpositive_top_k_rejected(capsys):
+    with pytest.raises(SystemExit) as excinfo:
+        main(["--docs", DOCS_DIR, "ask", "hello", "--top-k", "0"])
+    assert excinfo.value.code == 2
+    assert "positive integer" in capsys.readouterr().err
+
+
 def test_ask_missing_docs_dir_errors(capsys):
     rc = main(["--docs", "/does/not/exist", "ask", "hello"])
     assert rc == 1

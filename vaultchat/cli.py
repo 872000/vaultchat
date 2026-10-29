@@ -14,6 +14,17 @@ from .retrieval import build_index, search
 DEFAULT_DOCS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "docs")
 
 
+def positive_int(value: str) -> int:
+    """Argparse type for --top-k: reject zero/negative values with a clear error."""
+    try:
+        number = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {value!r}") from None
+    if number <= 0:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {value!r}")
+    return number
+
+
 def build(docs_dir: str, top_k_default: int = 3):
     chunks = ingest(docs_dir)
     index = build_index(chunks)
@@ -64,11 +75,11 @@ def main(argv: list[str] | None = None) -> int:
 
     p_ask = sub.add_parser("ask", help="Answer a single question and exit")
     p_ask.add_argument("question", help="The question to answer")
-    p_ask.add_argument("--top-k", type=int, default=3, help="Chunks to retrieve")
+    p_ask.add_argument("--top-k", type=positive_int, default=3, help="Chunks to retrieve")
     p_ask.set_defaults(func=cmd_ask)
 
     p_chat = sub.add_parser("chat", help="Start an interactive chat loop")
-    p_chat.add_argument("--top-k", type=int, default=3, help="Chunks to retrieve per question")
+    p_chat.add_argument("--top-k", type=positive_int, default=3, help="Chunks to retrieve per question")
     p_chat.set_defaults(func=cmd_chat)
 
     args = parser.parse_args(argv)
